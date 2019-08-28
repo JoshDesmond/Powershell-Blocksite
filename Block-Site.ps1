@@ -1,4 +1,5 @@
-﻿New-Variable -Name DNS_PARAMETER -Value 8.8.8.8 -Scope Script
+﻿New-Variable -Name DNS_PARAMETER -Value 8.8.8.8 -Scope Script -Force
+New-Variable -Name PORT_PARAMETER -Value 443 -Scope Script -Force
 
 function Block-TrafficToURL() {
     <#
@@ -20,10 +21,14 @@ function Block-TrafficToURL() {
     )
 
     Process {
-        $IPs = Resolve-DnsName -Name $domain -Server $DNS_PARAMETER -NoHostsFile | Select-Object -Property IPAddress
-        # TODO
+        #$IPs = Resolve-DnsName -Name $domain -Server $DNS_PARAMETER -NoHostsFile | Select-Object -Property IPAddress | Out-String
+        $IPs = Resolve-DnsName -Name $domain -Server $DNS_PARAMETER -NoHostsFile | Foreach {"$($_.IPAddress)"} | Out-String
+        Write-Verbose("`$IPs`:" + $IPs)
+        New-NetFirewallRule -DisplayName "Block {$domain}" -Direction Outbound -LocalPort $PORT_PARAMETER -Protocol TCP -Action Block -RemoteAddress $IPs -Verbose
     }
 }
+
+Block-TrafficToURL "reddit.com" -Verbose
 
 # https://github.com/PoshCode/PowerShellPracticeAndStyle
 #
