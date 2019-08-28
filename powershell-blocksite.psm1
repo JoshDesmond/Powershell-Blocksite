@@ -14,10 +14,10 @@ function Block-TrafficToURL() {
     #>
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(ValueFromPipeline=$true, Mandatory=$true)]
         # TODO validate
         #[ValidateScript({$_ -ge (get-date)})]
-        [String] $domain
+        [String] $domain #TODO convert to string array for multiple blocks?
     )
 
     Process {
